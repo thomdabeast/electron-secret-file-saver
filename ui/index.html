@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body style="padding: 0; margin: 0; width: 100vw; height: 100vh;">
+    <textarea id="text" class="mousetrap" style="width: inherit; height: inherit;"></textarea>
+    <script src="./mousetrap.js"></script>
+    <script>
+        const {
+            ipcRenderer
+        } = require('electron');
+        var prompt = require('electron-prompt');
+        var {
+            dialog,
+            app
+        } = require('electron').remote;
+
+        var saveFile = (password) => {
+            var filePath = dialog.showSaveDialog({
+                defaultPath: app.getPath('desktop')
+            });
+
+            ipcRenderer.send('save file', {
+                text: document.querySelector('#text').value,
+                password,
+                filePath
+            });
+        };
+
+        var newFile = () => {
+            document.querySelector('#text').value = null;
+        }
+
+        var openFile = () => {
+            var filePath = dialog.showOpenDialog({
+                properties: ['openFile']
+            })[0];
+
+            prompt({
+                title: "Prompt",
+                label: 'Enter your password',
+                type: 'input'
+            }).then((password) => {
+                ipcRenderer.send('open file', {
+                    filePath,
+                    password
+                })
+            })
+        };
+
+        ipcRenderer.on('opened file', (event, data) => {
+            document.querySelector('#text').value = data;
+        });
+
+        Mousetrap.bind('command+s', () => {
+            prompt({
+                title: 'Prompt',
+                label: 'Enter your password',
+                type: 'input'
+            }).then(saveFile);
+        });
+
+        Mousetrap.bind('command+n', newFile);
+        Mousetrap.bind('command+o', openFile);
+
+        Mousetrap.bind('command+a', () => {
+            var textarea = document.querySelector('#text');
+            textarea.selectionStart = 0;
+            textarea.selectionEnd = textarea.value.length
+        });
+
+        ipcRenderer.on('new file', newFile);
+        ipcRenderer.on('save file', () => {
+            prompt({
+                title: 'Prompt',
+                label: 'Enter your password',
+                type: 'input'
+            }).then(saveFile)
+        });
+        ipcRenderer.on('open file', openFile);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "encrypted_file_saver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^3.0.10",
+    "electron-prompt": "^1.2.0",
+    "mousetrap": "^1.6.2"
+  }
+}
